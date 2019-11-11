@@ -6,3 +6,9 @@ ELK Stack
    :caption: Introduction
 
    introduction
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Installation
+
+   installation

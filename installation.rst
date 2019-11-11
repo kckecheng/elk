@@ -1,0 +1,75 @@
+ELK Installation
+==================
+
+As we know, ELK is mainly consit of Elasticsearch, Logstash and Kibana, hence the instalaltion is consist of 3 corresponding sections. ELK stack can be installed on bare-metal/VM, and can also be run by using docker and kunernetes, it even can be serviced through public clouds like AWS and GCP.
+
+For non-public cloud based IT solutions, it is recommended to maintain a **local deployment**. At the same time, installing Elasticsearch on **bare-metal/VM** are recommdned since Elasticsearch needs to store and index data frequently although docker/kubernetes also support data persistence (unless there is already a working kubernetes setup including well defined CSI support).
+
+Elasticsearch
+---------------
+
+Installation
+~~~~~~~~~~~~~~
+
+Elasticsearch can be installed through using tarball on Linux, but the prefered way is to use a package manager, such as **rpm/yum/dnf on RHEL/CentOS**, **apt on Ubuntu**.
+
+The detailed installation step won't be covered in this document since it is well documented by its `official guide<https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html>`_.
+
+**Notes:** An Elasticsearch cluster, which is consist of several nodes, should be used to provide scalability and resilience for most use cases, therefore the pacakge should be installed by following the same steps on all involved cluster nodes.
+
+Configuration
+~~~~~~~~~~~~~~~
+
+After installing Elasticsearch on all cluster nodes, we need to configure them to form a working cluster. Fortunatelly, Elasticsearch ships with good defaults and requires very little configuration.
+
+- Config file location: **/etc/elasticsearch/elasticsearch.yml** is the primary config file for Elasticsearch if it is installed through a pacakge manager, such as rpm;
+- Config file format  : the config file is in YAML format, with a simple `Syntax<https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html>`_;
+
+The **detailed configuration** is straightforward, let's explain them one by one:
+
+1. cluster.name                 : the name of the Elasticsearch cluster. All nodes should be configured with an identical value;
+2. node.name                    : the name for node. It is recommended to use a resolvable (through /etc/hosts or DNS) hostname;
+3. path.data                    : where the data will be stored. If a different path than the default is specified, remember to change the permission accordingly;
+4. path.logs                    : where the Elasticsearch log will be stored. If a different path than the default is specified, remember to change the permission accordingly;
+5. network.host                 : the IP/FQDN each node will listen on. It is recommended to use **0.0.0.0** to bind all available IP address;
+6. discovery.seed_hosts         : the list of nodes which will form the cluster;
+7. cluster.initial_master_nodes : the list of nodes which may act as the master of the cluster;
+
+Here is a sample configuration file:
+
+::
+
+  cluster.name: elab-elasticsearch
+  node.name: e2e-l4-0680-240
+
+  path.data: /home/elasticsearch/data
+  path.logs: /home/elasticsearch/log
+
+  network.host: 0.0.0.0
+
+  discovery.seed_hosts: ["e2e-l4-0680-240", "e2e-l4-0680-241", "e2e-l4-0680-242"]
+  cluster.initial_master_nodes: ["e2e-l4-0680-240", "e2e-l4-0680-241", "e2e-l4-0680-242"]
+
+Startup
+~~~~~~~~
+
+After configuration, the cluster can be booted. Before that, please make sure the port **9200**, which is the default port Elasticsearch listens at, has been opened on firewall. Of course, one can specify a different port and configure the firewall accordingly.
+
+The cluster can be booted easily by starting the service on each node with systemctl if Elasticsearch is installed through a package manger. Below are the sample commands:
+
+::
+
+  # Run below commands on all nodes
+  # Disable the firewall directly - not recommended for production setup
+  systemctl stop firewalld
+  systemctl disable firewalld
+  # Start elasticsearch
+  systemctl enable elasticsearch
+  systemctl start elasticsearch
+  systemctl status elasticsearch
+
+If everything is fine, your cluster should be up and running within a minute. It is easy to verify if the cluster is working as expected by checking its status:
+
+::
+
+  curl -XGET 'http://<any node IP/FQDN>:9200/_cluster/state?pretty'
