@@ -3,12 +3,7 @@ ELK Stack
 
 .. toctree::
    :maxdepth: 2
-   :caption: Introduction
+   :caption: Elastic/ELK Stack Tutorial
 
    introduction
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Installation
-
    installation
