@@ -13,7 +13,7 @@ Installation
 
 Elasticsearch can be installed through using tarball on Linux, but the prefered way is to use a package manager, such as **rpm/yum/dnf on RHEL/CentOS**, **apt on Ubuntu**.
 
-The detailed installation step won't be covered in this document since it is well documented by its `official guide<https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html>`_.
+The detailed installation step won't be covered in this document since it is well documented by its `official guide <https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html>`_.
 
 **Notes:** An Elasticsearch cluster, which is consist of several nodes, should be used to provide scalability and resilience for most use cases, therefore the pacakge should be installed by following the same steps on all involved cluster nodes.
 
@@ -23,7 +23,7 @@ Configuration
 After installing Elasticsearch on all cluster nodes, we need to configure them to form a working cluster. Fortunatelly, Elasticsearch ships with good defaults and requires very little configuration.
 
 - Config file location: **/etc/elasticsearch/elasticsearch.yml** is the primary config file for Elasticsearch if it is installed through a pacakge manager, such as rpm;
-- Config file format  : the config file is in YAML format, with a simple `Syntax<https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html>`_;
+- Config file format  : the config file is in YAML format, with a simple `Syntax <https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html>`_;
 
 The **detailed configuration** is straightforward, let's explain them one by one:
 
