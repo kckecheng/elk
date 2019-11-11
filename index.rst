@@ -7,3 +7,4 @@ ELK Stack
 
    introduction
    installation
+   pipelines
