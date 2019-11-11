@@ -79,8 +79,7 @@ Kibana
 
 Kibana is the front end GUI for Elasticsearch showcase. Since it does not store or index data, it is suitable to run as a docker container or a kubernetes service. However, since we have already privisioned bare-metal/VM for the Elasticsearch cluster setup, installing kibana on any/all nodes of the cluster is also a good choice.
 
-The detailed installation step is straightforward, please refer to the `official installation document <https://www.elastic.co/guide/en/kibana/current/install.html>_`
-
+The detailed installation step is straightforward, please refer to the `official installation document <https://www.elastic.co/guide/en/kibana/current/install.html>`_
 The **configuration for kibana** is also quite easy:
 
 - server.host: specify the IP address Kibana will bind to. **0.0.0.0** is recommended;
@@ -110,7 +109,7 @@ If everyghing goes fine, Kibana can be accessed through **http://<IP or FQDN>:56
 Logstash
 ---------
 
-The instalaltion of Logstash is also pretty easy and straightforward. We won't waste any words here for it, please refer to the `official installation guide <https://www.elastic.co/guide/en/logstash/current/installing-logstash.html>_`
+The instalaltion of Logstash is also pretty easy and straightforward. We won't waste any words here for it, please refer to the `official installation guide <https://www.elastic.co/guide/en/logstash/current/installing-logstash.html>`_
 
 Please **keep in mind**: although Logstash can be installed together on the same server(s) as elasticsearch and Kibana, it is not wise to do so. It is highly recommended to install Logstash near to the soures where logs/metrics are generated.
 
