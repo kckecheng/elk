@@ -371,7 +371,7 @@ Let's explain it with an example:
 
 - The full pipeline configuration for this example is as below:
 
-	::
+  ::
 
     input {
       tcp {
