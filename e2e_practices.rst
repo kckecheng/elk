@@ -266,7 +266,7 @@ The installation process has already been documented by this document, please re
          }
        }
 
-   - syslog_vspher.conf
+   - syslog_vsphere.conf
 
      ::
 
@@ -301,6 +301,8 @@ The installation process has already been documented by this document, please re
 
   - beats.conf
 
+    **Notes**: the output index must be set if the output destination is elasticsearch
+
     ::
 
       input {
@@ -313,6 +315,7 @@ The installation process has already been documented by this document, please re
       output {
         elasticsearch {
           hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+          index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
         }
       }
 
@@ -395,19 +398,15 @@ After installation, filebeat needs to be configured. The steps can be refered `h
      - module: elasticsearch
        server:
          enabled: true
-         var.paths: ["/home/elasticsearch/log/"]
+         var.paths: ["/home/elasticsearch/log/*.log"]
        gc:
-         enabled: true
-         var.paths: ["/home/elasticsearch/log/"]
+         enabled: false
        audit:
-         enabled: true
-         var.paths: ["/home/elasticsearch/log/"]
+         enabled: false
        slowlog:
-         enabled: true
-         var.paths: ["/home/elasticsearch/log/"]
+         enabled: false
        deprecation:
-         enabled: true
-         var.paths: ["/home/elasticsearch/log/"]
+         enabled: false
 
 5. Start filebeat
 
