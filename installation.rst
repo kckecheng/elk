@@ -109,7 +109,7 @@ If everyghing goes fine, Kibana can be accessed through **http://<IP or FQDN>:56
 Logstash
 ---------
 
-The instalaltion of Logstash is also pretty easy and straightforward. We won't waste any words here for it, please refer to the `official installation guide <https://www.elastic.co/guide/en/logstash/current/installing-logstash.html>`_
+The instalaltion of Logstash is also pretty easy and straightforward. We won't waste any words here for it, please refer to the `official installation guide <https://www.elastic.co/guide/en/logstash/current/installing-logstash.html>`_.
 
 Please **keep in mind**: although Logstash can be installed together on the same server(s) as elasticsearch and Kibana, it is not wise to do so. It is highly recommended to install Logstash near to the soures where logs/metrics are generated.
 
@@ -117,3 +117,5 @@ In the meanwhile, since Logstash is the central place to foward logs/metrics to 
 
 - Particioning: leverage different Logstash deployment for differnet solutions/applications. Let's say there are web servers and databases within a production environment, then deploying different Logstash instances for them is a good choice - the capactiy of Logstash is extended, and each solution won't impact each other if its assocaiated Logstash fails;
 - Load balancing: for each solution/application, it is recommended to deploy several Logstash instances and expose them with a load balancer (such as **HAProxy**) for high availability.
+
+Regarding the configuration of Logstash, we will cover it in the introdcution section of Logstash pipelines.
