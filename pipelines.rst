@@ -312,6 +312,259 @@ By reading above examples, you should be ready to configure your own pipelines. 
 The Grok Filter Plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+Predefined Patterns
++++++++++++++++++++++
+
+Grok defines quite a few patterns for usage directly. They are actually just regular expressions. The definitions of them can be checked `here <https://github.com/logstash-plugins/logstash-patterns-core/blob/master/patterns/grok-patterns>`_.
+
+Grok Fundamental
+++++++++++++++++++
+
+The most basic and most important concept in Grok is its syntax:
+
+::
+
+  %{SYNTAX:SEMANTIC}
+
+- SYNTAX   : the name of the pattern that will match your text;
+- SEMANTIC : the identifier you give to the piece of text being matched.
+
+Let's explain it with an example:
+
+- Assume we have a log record as below:
+
+  ::
+
+    Dec 23 14:30:01 louis CRON[619]: (www-data) CMD (php /usr/share/cacti/site/poller.php >/dev/null 2>/var/log/cacti/poller-error.log)
+
+- By deault, the whole string will be forwarded to destinations (such as Elasticsearch) without any change. In other words, it will be seen by the end user as a JSON document with only one filed "message" which holds the raw string. This is not easy for end users to do search and classify.
+- To make the unstructured log record as a meaningful JSON document, below grok pattern can be leveraged to parse it:
+
+  ::
+
+    %{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}
+
+- SYSLOGTIMESTAMP, SYSLOGHOST, DATA, POSINT and GREEDYDATA are all `predefined patterns <https://github.com/logstash-plugins/logstash-patterns-core/blob/master/patterns/grok-patterns>`_
+- syslog_timestamp, syslog_hostname, syslog_program, syslog_pid and syslog_message are fields names added based on the pattern matching
+- After parsing, the log record becomes a JSON document as below:
+
+  ::
+
+    {
+                     "message" => "Dec 23 14:30:01 louis CRON[619]: (www-data) CMD (php /usr/share/cacti/site/poller.php >/dev/null 2>/var/log/cacti/poller-error.log)",
+                  "@timestamp" => "2013-12-23T22:30:01.000Z",
+                    "@version" => "1",
+                        "type" => "syslog",
+                        "host" => "0:0:0:0:0:0:0:1:52617",
+            "syslog_timestamp" => "Dec 23 14:30:01",
+             "syslog_hostname" => "louis",
+              "syslog_program" => "CRON",
+                  "syslog_pid" => "619",
+              "syslog_message" => "(www-data) CMD (php /usr/share/cacti/site/poller.php >/dev/null 2>/var/log/cacti/poller-error.log)",
+                 "received_at" => "2013-12-23 22:49:22 UTC",
+               "received_from" => "0:0:0:0:0:0:0:1:52617",
+        "syslog_severity_code" => 5,
+        "syslog_facility_code" => 1,
+             "syslog_facility" => "user-level",
+             "syslog_severity" => "notice"
+    }
+
+- The full pipeline configuration for this example is as below:
+
+	::
+
+    input {
+      tcp {
+        port => 5000
+        type => syslog
+      }
+      udp {
+        port => 5000
+        type => syslog
+      }
+    }
+
+    filter {
+      if [type] == "syslog" {
+        grok {
+          match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{SYSLOGHOST:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
+          add_field => [ "received_at", "%{@timestamp}" ]
+          add_field => [ "received_from", "%{host}" ]
+        }
+        date {
+          match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+        }
+      }
+    }
+
+    output {
+      elasticsearch { hosts => ["localhost:9200"] }
+      stdout { codec => rubydebug }
+    }
+
+The example is from the `official document, please go through it for more details <https://www.elastic.co/guide/en/logstash/current/config-examples.html>`_.
+
+Single Pipeline vs. Multiple Pipelines
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Based on the previous introduction, we know multiple plugins can be used for each pipeline section (input/filter/output). In other words, there are always two methods to achieve the same data processing goal:
+
+1. Define a single pipeline containing all configurations:
+
+   - Define multiple input sources
+   - Define multiple filters for all input sources and make decision based on conditions
+   - Define multiple output destinations and make decision based on conditions
+
+2. Define multiple pipelines with each:
+
+   - Define a single input source
+   - Define filters
+   - Define a single output destination
+
+Here is the example for these different implementations:
+
+1. Define a single pipeline:
+
+   ::
+
+     input {
+       beats {
+         port => 5044
+         type => "beats"
+       }
+       tcp {
+         port => 5000
+         type => "syslog"
+       }
+       udp {
+         port => 5000
+         type => "syslog"
+       }
+       stdin {
+         type => "stdin"
+       }
+     }
+
+     filter {
+       if [type] == "syslog" {
+         grok {
+           match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{DATA:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
+         }
+         date {
+            match => [ "timestamp", "MMM dd HH:mm:ss", "MMM  d HH:mm:ss" ]
+         }
+       } else if [type] == "beats" {
+         json {
+           add_tag => ["beats"]
+         }
+       } else {
+         prune {
+           add_tag => ["stdin"]
+         }
+       }
+     }
+
+     output {
+       if [type] == "syslog" or [type] == "beats" {
+         elasticsearch {
+           hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+         }
+       } else {
+           stdout { codec => json }
+       }
+     }
+
+2. Here is the example implementing the same goal with multiple pipelines:
+
+   a. Define a pipeline configuration for beats:
+
+      ::
+
+        input {
+          beats {
+            port => 5044
+            type => "beats"
+          }
+        }
+
+        filter {
+          json {
+            add_tag => ["beats"]
+          }
+        }
+
+        output {
+          elasticsearch {
+            hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+          }
+        }
+
+   b. Define a pipeline configuration for syslog:
+
+      ::
+
+        input {
+          tcp {
+            port => 5000
+            type => "syslog"
+          }
+          udp {
+            port => 5000
+            type => "syslog"
+          }
+        }
+
+        filter {
+          grok {
+            match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{DATA:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
+          }
+          date {
+             match => [ "timestamp", "MMM dd HH:mm:ss", "MMM  d HH:mm:ss" ]
+          }
+        }
+
+        output {
+          elasticsearch {
+            hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+          }
+        }
+
+   c. Define a pipeline configuration for stdin:
+
+      ::
+
+        input {
+          stdin {
+            type => "stdin"
+          }
+        }
+
+        filter {
+          prune {
+            add_tag => ["stdin"]
+          }
+        }
+
+        output {
+          stdout { codec => json }
+        }
+
+   d. Enable all pipelines in pipelines.yml
+
+      ::
+
+        - pipeline.id: beats
+          path.config: "/etc/logstash/conf.d/beats.conf"
+        - pipeline.id: syslog
+          path.config: "/etc/logstash/conf.d/syslog.conf"
+        - pipeline.id: stdin
+          path.config: "/etc/logstash/conf.d/stdin.conf"
+
+The same goal can be achived with both methods, but which method should be used? The answer is **multiple pipelines should always be used whenever possible**:
+
+- Maintaining everything in a single pipeline leads to conditional hell - lots of conditions need to be declared which cause complication and potential errors;
+- When multiple output destinations are defined in the same pipeline, `congestion may be triggered <https://www.elastic.co/blog/logstash-multiple-pipelines>`_.
+
 Reference
 ~~~~~~~~~~
 
@@ -319,3 +572,8 @@ Reference
 - `Input Plugins <https://www.elastic.co/guide/en/logstash/current/input-plugins.html>`_
 - `Filter Plugins <https://www.elastic.co/guide/en/logstash/current/filter-plugins.html>`_
 - `Output Plugins <https://www.elastic.co/guide/en/logstash/current/output-plugins.html>`_
+
+Conclusion
+-----------
+
+After reading this chapter carefully, one is expected to get enough skills to implement pipelines for production setup. We will provide a full example for a production setup end to end in next chapter.

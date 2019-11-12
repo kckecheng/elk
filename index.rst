@@ -8,3 +8,4 @@ ELK Stack
    introduction
    installation
    pipelines
+   e2e_practices
