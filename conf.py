@@ -54,4 +54,8 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# Enlarge readthedocs display width
+html_css_files = ['style.css']
+
+# Fix the readthedocs error complaining the missing of a content file
 master_doc = 'index'
