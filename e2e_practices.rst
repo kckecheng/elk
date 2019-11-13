@@ -11,9 +11,9 @@ Environment
 
 The production environment consists of 4 x ESXi servers, 1 x Unity and 1 x XtremIO:
 
-- 4 x vSphere ESXi servers: 10.226.68.231-234       (hostnames: e2e-l4-0680-231/232/233/234)
-- 1 x Dell EMC Unity storage array: 10.226.49.236   (hostname : uni0839)
-- 1 x Dell EMC XtremIO storage array: 10.226.49.222 (hostname : e2es-xio-02)
+- **4 x vSphere ESXi servers** : 10.226.68.231-234       (hostnames: e2e-l4-0680-231/232/233/234)
+- **1 x Dell EMC Unity storage array** : 10.226.49.236   (hostname : uni0839)
+- **1 x Dell EMC XtremIO storage array** : 10.226.49.222 (hostname : e2es-xio-02)
 
 Monitoring Goals
 ~~~~~~~~~~~~~~~~~
@@ -29,8 +29,8 @@ Environment
 
 The ELK stack will be deployed on VMs:
 
-- 3 x VMs for Elasticsearch cluster : 10.226.68.240-242 (hostnames: e2e-l4-0680-240/241/242)
-- 1 x VM  for Logstash installation : 10.226.68.186     (hostname : e2e-l4-0680-186)
+- **3 x VMs for Elasticsearch cluster** : 10.226.68.240-242 (hostnames: e2e-l4-0680-240/241/242)
+- **1 x VM  for Logstash installation** : 10.226.68.186     (hostname : e2e-l4-0680-186)
 
 Elasticsearch Deployment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -368,8 +368,8 @@ Beats have been mentioned for several times in this document, but what are beats
 
 The most frequently used beats are:
 
-- filebeat   : sends local file records to Logstash or ELasticsearch (work as tail -f on Unix like OS);
-- metricbeat : sends system or application performance metrics to Logstash or Elasticsearch.
+- **filebeat** : sends local file records to Logstash or ELasticsearch (work as tail -f on Unix like OS);
+- **metricbeat** : sends system or application performance metrics to Logstash or Elasticsearch.
 
 Since we are leveraging ELK stack mainly for logging here in the document, we will use filebeat only. Currently, filebeat supports Linux, Windows and Mac, and provide well pacakged binary (deb, rpm, etc.). The installation is pretty easy, we won't cover the details, please refer to the `offical instalaltion guide <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-installation.html>`_.
 

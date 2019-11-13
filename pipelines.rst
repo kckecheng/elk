@@ -3,7 +3,7 @@ Logstash Pipelines
 
 After bringing up the ELK stack, the next step is feeding data (logs/metrics) into the setup.
 
-Based on our previous introduction, it is known that Logstash act as the bridge/forwarder to consolidate data from sources and forward it to the Elasticsearch cluster. But how?
+Based on our previous introduction, it is known that Logstash act as the **bridge/forwarder** to consolidate data from sources and forward it to the Elasticsearch cluster. But how?
 
 ELK Data Flow
 --------------
@@ -38,31 +38,31 @@ The data flow in ELK is as below:
 Logstash Pipeline
 ------------------
 
-Based on the "ELK Data Flow", we can see Logstash sits at the middle of the data process and is responsible for data **gathering (input), filtering/aggregating/etc. (filter), and forwarding (output)**. The process of event processing (**input -> filter -> output**) works as a pipe, hence is called pipeline.
+Based on the "ELK Data Flow", we can see Logstash sits at the middle of the data process and is responsible for data gathering (input), filtering/aggregating/etc. (filter), and forwarding (output). The process of event processing (**input -> filter -> output**) works as a pipe, hence is called pipeline.
 
 .. image:: images/logstash_pipeline_overview.png
 
 Pipeline is the core of Logstash and is the most important concept we need to understand during the use of ELK stack. Each component of a pipeline (input/filter/output) actually is implemented by using plugins. The most **frequently used plugins** are as below:
 
-- Input:
+- **Input** :
 
   - file   : reads from a file directly, working like "tail -f" on Unix like OS;
   - syslog : listens on defined ports (514 by default) for syslog message and parses based on syslog RFC3164 definition;
   - beats  : processes events sent by beats, including filebeat, metricbeat, etc.
 
-- Filter:
+- **Filter** :
 
   - grok   : parses and structures arbitrary text;
   - mutate : modifies event fields, such as rename/remove/replace/modify;
   - drop   : discards a event;
 
-- Output:
+- **Output** :
 
   - elasticsearch : sends event data to Elasticsearch cluster;
   - file          : writes event data to a file;
   - graphite      : sends event data to graphite for graphing and metrics.
 
-**Notes:**
+**Notes** :
 
 - Multiple pipelines can be defined;
 - Multiple input sources, filters, and output targets can be defined within the same pipeline;
@@ -74,21 +74,21 @@ Logstash Configuration
 
 We only ontroduced the instalaltion of Logstash in previous chapters without saying any word on its configuration, since it is the most complicated topic in ELK stack. Loosely speaking, Logstash provides two types of configuration:
 
-- settings  : control the behavior of how Logstash executes;
-- pipelines : define the flows how data get processed.
+- **settings** : control the behavior of how Logstash executes;
+- **pipelines** : define the flows how data get processed.
 
 If Logstash is installed with a pacakge manager, such as rpm, its configuration files will be as below:
 
-- /etc/logstash/logstash.yml  : the default setting file;
-- /etc/logstash/pipelines.yml : the default pipeline config file.
+- **/etc/logstash/logstash.yml** : the default setting file;
+- **/etc/logstash/pipelines.yml** : the default pipeline config file.
 
 logstash.yml
 ~~~~~~~~~~~~~~
 
 There are few options need to be set (other options can use the default values):
 
-- node.name               : specify a node name for the Logstash instance;
-- config.reload.automatic : whether Logstash detects config changes and reload them automatically.
+- **node.name** : specify a node name for the Logstash instance;
+- **config.reload.automatic** : whether Logstash detects config changes and reload them automatically.
 
 It is recommended to set config.reload.automatic as **true** since this will make it handy during pipeline tunings.
 
@@ -97,8 +97,8 @@ pipelines.yml
 
 The default pipeline config file. It consists of a list of pipeline reference, each with:
 
-- pipeline.id : a meaningful pipeline name specified by the end users;
-- path.config : the detailed pipeline configuration file, refer to `Pipeline Configuration`_.
+- **pipeline.id** : a meaningful pipeline name specified by the end users;
+- **path.config** : the detailed pipeline configuration file, refer to `Pipeline Configuration`_.
 
 Below is a simple example, which defines 4 x pipelines:
 
@@ -326,8 +326,8 @@ The most basic and most important concept in Grok is its syntax:
 
   %{SYNTAX:SEMANTIC}
 
-- SYNTAX   : the name of the pattern that will match your text;
-- SEMANTIC : the identifier you give to the piece of text being matched.
+- **SYNTAX** : the name of the pattern that will match your text;
+- **SEMANTIC** : the identifier you give to the piece of text being matched.
 
 Let's explain it with an example:
 
