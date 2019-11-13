@@ -361,8 +361,8 @@ XtremIO Storage Array Configuration
 
 4. Click "Syslog Notifications->New" and specify the Logstash syslog listening address "10.226.68.186:5001"
 
-Elasticsearch Cluster Filebeat Configuraion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ELK Stack Filebeat Configuraion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Beats have been mentioned for several times in this document, but what are beats? They are actually lightweight data shippers, which can forward data to either Logstash or Elasticsearch directly with much less configuration than Logstash.
 
@@ -373,9 +373,15 @@ The most frequently used beats are:
 
 Since we are leveraging ELK stack mainly for logging here in the document, we will use filebeat only. Currently, filebeat supports Linux, Windows and Mac, and provide well pacakged binary (deb, rpm, etc.). The installation is pretty easy, we won't cover the details, please refer to the `offical instalaltion guide <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-installation.html>`_.
 
-After installation, filebeat needs to be configured. The steps can be refered `here <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration.html>`_. Since we want to monitor the elasticsearch cluster itself, and filebeat provides a module for it, we will leverage this feature.
+After installation, filebeat needs to be configured. The steps can be refered `here <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration.html>`_.
 
-1. Configure (/etc/filebeat/filebeat.yml) all nodes (e2e-l4-0680-240/241/242)
+Our target is monitoring ELK stack itself with filebeat. Since ELK stack consists of Elasticsearch cluster, Logstash and Kibana, and Kibana is only a GUI front end (with lots of features), we will only monitor Elasticsearch cluster and Logstash.
+
+To make the daily configuration work more smoothly, filebeat provides a mechanism to simplify the collection, parsing, and visualization of common log formats, which is called **modules** (refer `here <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-modules-overview.html>`_ for the introduction and supported modules).
+
+Elasticsearch and Logstash have supported modules in filebeat, hence we will leverage them to ease the configuration:
+
+1. Configure (/etc/filebeat/filebeat.yml) all nodes (e2e-l4-0680-240/241/242, e2e-l4-0680-186)
 
    ::
 
@@ -383,30 +389,50 @@ After installation, filebeat needs to be configured. The steps can be refered `h
        # The Logstash hosts
        hosts: ["e2e-l4-0680-186:5044"]
 
-2. Enable filebeat elasticsearch module on all nodes:
+2. Enable modules:
 
-   ::
+   - Enable filebeat elasticsearch module on all Elasticsearch cluster nodes:
 
-     filebeat modules list
-     filebeat modules enable elasticsearch
-     filebeat modules list
+     ::
 
-3. Configure filebeat elasticsearch module (/etc/filebeat/modules.d/elasticsearch.yml) on all nodes:
+       filebeat modules enable elasticsearch
+       filebeat modules list
 
-   ::
+   - Enable filebeat elasticsearch module on Logstash nodes:
 
-     - module: elasticsearch
-       server:
-         enabled: true
-         var.paths: ["/home/elasticsearch/log/*.log"]
-       gc:
-         enabled: false
-       audit:
-         enabled: false
-       slowlog:
-         enabled: false
-       deprecation:
-         enabled: false
+     ::
+
+       filebeat modules enable logstash
+       filebeat modules list
+
+3. Configure filebeat modules:
+
+   - Elasticsearch nodes (/etc/filebeat/modules.d/elasticsearch.yml):
+
+     ::
+
+       - module: elasticsearch
+         server:
+           enabled: true
+           var.paths: ["/home/elasticsearch/log/*.log"]
+         gc:
+           enabled: false
+         audit:
+           enabled: false
+         slowlog:
+           enabled: false
+         deprecation:
+           enabled: false
+
+   - Logstash nodes (/etc/filebeat/modules.d/logstash.yml):
+
+     ::
+
+       - module: logstash
+         log:
+           enabled: true
+         slowlog:
+          enabled: true
 
 5. Start filebeat
 
@@ -414,3 +440,8 @@ After installation, filebeat needs to be configured. The steps can be refered `h
 
      systemctl enable filebeat
      systemctl start filebeat
+
+Conclusion
+------------
+
+We have completed all the setup work for the production environment. The next step is leveraging the powerful ELK stack checking our logs, which will be covered in the next chapter.

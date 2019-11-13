@@ -11,3 +11,4 @@ A simple tutorial on Elastic Stack. For anything unclear or needs enhancement, p
    installation
    pipelines
    e2e_practices
+   kibana_search
