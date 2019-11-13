@@ -1,7 +1,14 @@
 ELK Stack
 ==========
 
-A simple tutorial on Elastic Stack. For anything unclear or needs enhancement, please help submit a issue/PR `here on github <https://github.com/kckecheng/elk>`_
+This document provides a simple tutorial on Elastic stack usage, including some tips. All knowledge is based on the author's own experience, and should work as well on anyone's setup. However, because of OS differences and ELK stack software version updates, some inforamtion maybe not suitable for your setup. Anyway, the knowledge is common:)
+
+This document is mainly for training and learning, please do not take it as a best practice. There is no responsibility from the author if you meet serious problems following the document.
+
+In the meanwhle, for anything unclear or needing enhancement, please help submit a issue/PR `here on github <https://github.com/kckecheng/elk>`_
+
+Thanks,
+KC
 
 .. toctree::
    :maxdepth: 2
