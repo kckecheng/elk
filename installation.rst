@@ -15,7 +15,7 @@ Elasticsearch can be installed through using tarball on Linux, but the prefered 
 
 The detailed installation step won't be covered in this document since it is well documented by its `official guide <https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html>`_.
 
-**Notes:** An Elasticsearch cluster, which is consist of several nodes, should be used to provide scalability and resilience for most use cases, therefore the pacakge should be installed by following the same steps on all involved cluster nodes.
+**Notes:** An Elasticsearch cluster, which consists of several nodes, should be used to provide scalability and resilience for most use cases, therefore the pacakge should be installed by following the same steps on all involved cluster nodes.
 
 Configuration
 ~~~~~~~~~~~~~~~

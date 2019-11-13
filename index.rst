@@ -7,9 +7,6 @@ This document is mainly for training and learning, please do not take it as a be
 
 In the meanwhle, for anything unclear or needing enhancement, please help submit a issue/PR `here on github <https://github.com/kckecheng/elk>`_
 
-Thanks,
-KC
-
 .. toctree::
    :maxdepth: 2
    :caption: Elastic/ELK Stack Tutorial
@@ -19,3 +16,4 @@ KC
    pipelines
    e2e_practices
    kibana_search
+   grok_debugger
