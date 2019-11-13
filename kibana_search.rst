@@ -33,9 +33,106 @@ To **create index patterns**, it is recommended to conduct the operation from th
 
    .. image:: images/kibana_index_pattern_4.png
 
-After creating index patterns, we can start exploring data from the **Discover** view:
-
-.. image:: images/kibana_explore.png
+After creating index patterns, we can start exploring data from the **Discover** view by selecting a pattern:
 
 KQL Basics
 ------------
+
+To smooth the exprience of filtering logs, Kibana provides a simple language named **Kibana Query Lanagure (KQL for short)**. The syntax is really straightforward, we will introduce the basics in this section.
+
+Simple Match
+~~~~~~~~~~~~~
+
+**Syntax**:
+
+::
+
+  <field name>: <word to match>
+
+**Example**:
+
+  - response:200
+
+    - Search documents (log records) which have a field named "response" and its value is "200"
+
+Quotes Match
+~~~~~~~~~~~~~~
+
+**Syntax**:
+
+::
+
+  <filed name>: "<words to match>"
+
+**Example**:
+
+- message:"Quick brown fox"
+
+  - Search the quoted string "Quick brown fox" in the "message" field;
+  - If quotes are not used, search documents which have word "Quick" in the "message" field, and have fields "brown" and "fox"
+
+Complicated Match
+~~~~~~~~~~~~~~~~~~~
+
+**Syntax**:
+
+- Logical combination: and, or, not
+- Grouping           : ()
+- Range              : >, >=, <, <=
+- Wildcard           : *
+
+**Examples**:
+
+- response:200 and extension:php
+
+  - Match documents whose "response" field is "200" **and** "extension" field is "php"
+
+- response:200 and (extension:php or extension:css)
+
+  - Match documents  whose "response" field is 200 **and** "extension" field is "php" **or** "css"
+
+- response:200 and not (extension:php or extension:css)
+
+  - Match documents whose "response" field is 200 **and** "extension" field is **not** "php" **or** "css"
+
+- response:200 and bytes > 1000
+
+  - Match documents whose "response" field is 200 and "bytes" field is in **range** larger than "1000"
+
+- machine.os:win*
+
+  - Match documents whose "machine" field has a subfield "os" and its value start with "win", such as "windows", "windows 2016"
+
+- machine.os.*:"windows 10"
+
+  - Match documents whose "machine" field has a subfiled "os" which also has subfileds and any of such subfields' value contains "windows 10"
+
+Explore Real Data
+------------------
+
+We have introduced index patterns and KQL, it is time to have a look at real data in our production setup. All log records will be structured as JSON documents as we previously introduced, and Kibana will show a summary for related indices as below once an index pattern is selected:
+
+.. image:: images/kibana_explore.png
+
+As we said, log records will be formated/structured as JSON documents. Bug how? Actually, there is term called **mapping**, which performs the translation work from the original format (such as text) to JSON. Since logstash and filebeat already have internal mapping defined, we do not need to care about the details. What we should know is that the JSON documents from different data input (logstash, filebeat, etc.) may be different because of the mapping. For more information on mapping, please refer to the `offical introduction <https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html>`_.
+
+Below are JSON document samples from different input type:
+
+- logstash:
+
+  .. image:: images/kibana_logstash_json.png
+
+- filebeat:
+
+  .. image:: images/kibana_filebeat_json.png
+
+Based on the samples, we see each document consist of a few fields. These fields are the key for filtering. For example, we can filter logs which are from "xio" with hostname "e2e-xio-071222"  and not related with "InfiniBand" as below:
+
+.. image:: images/kibana_search_kql.png
+
+Pretty easy, right? There is no more magic for this! Just specify your KQL with fields and value expressions, that is all!
+
+Save Search/Query
+------------------
+
+
