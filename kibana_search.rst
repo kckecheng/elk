@@ -135,4 +135,13 @@ Pretty easy, right? There is no more magic for this! Just specify your KQL with 
 Save Search/Query
 ------------------
 
+It is a frequent request that we want to classify logs based on different condtions. Of course, we can achieve this by using different KQL expressions, but keeping inputting KQL expressions is not a comfortable way. Kibana provides the functions to save your search/query and replay them on demand.
 
+.. image:: images/kibana_seaerch_save.png
+
+.. image:: images/kibana_search_replay.png
+
+Conclusion
+-----------
+
+Using Kibana explore logs is as easy as we introcued above. Although its usage is easy and straightforward, it is powerful enough covering our daily log processing tasks.
