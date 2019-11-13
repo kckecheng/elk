@@ -137,7 +137,7 @@ Save Search/Query
 
 It is a frequent request that we want to classify logs based on different condtions. Of course, we can achieve this by using different KQL expressions, but keeping inputting KQL expressions is not a comfortable way. Kibana provides the functions to save your search/query and replay them on demand.
 
-.. image:: images/kibana_seaerch_save.png
+.. image:: images/kibana_search_save.png
 
 .. image:: images/kibana_search_replay.png
 
