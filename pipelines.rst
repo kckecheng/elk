@@ -309,6 +309,45 @@ The details of each section are defined through the usage of different plugins. 
 
 By reading above examples, you should be ready to configure your own pipelines. We will introduce the filter plugin grok in more details since we need to use it frequently.o
 
+Output Index for Elasticsearch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If the output plugin is "elasticsearch", the target Elastcisearch index should be specified. To smooth user expereince, Logstash provides default values. For example, **logstash-%{+YYYY.MM.dd}** will be used as the default target Elasticsearch index. However, we may need to change the default values sometimes, and the default won't work if the input is filebeat (due to mapping).
+
+Below is several examples how we change the index:
+
+- Customize indices based on input source difference:
+
+  ::
+
+    output {
+      if "vsphere" in [tags] {
+        elasticsearch {
+          hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+          index => "logstash-vsphere-%{+YYYY.MM.dd}"
+        }
+      }
+
+      if "san" in [tags] {
+        elasticsearch {
+          hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+          index => "logstash-san-%{+YYYY.MM.dd}"
+        }
+      }
+    }
+
+- Specify index name for beats:
+
+  ::
+
+    output {
+      elasticsearch {
+        hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+        index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+      }
+    }
+
+
 The Grok Filter Plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -572,6 +611,7 @@ Reference
 - `Input Plugins <https://www.elastic.co/guide/en/logstash/current/input-plugins.html>`_
 - `Filter Plugins <https://www.elastic.co/guide/en/logstash/current/filter-plugins.html>`_
 - `Output Plugins <https://www.elastic.co/guide/en/logstash/current/output-plugins.html>`_
+- `Time Format <http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html>`_
 
 Conclusion
 -----------
