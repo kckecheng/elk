@@ -17,3 +17,4 @@ In the meanwhle, for anything unclear or needing enhancement, please help submit
    e2e_practices
    kibana_search
    grok_debugger
+   tips
