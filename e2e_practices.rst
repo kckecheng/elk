@@ -12,13 +12,15 @@ Environment
 The production environment consists of 4 x ESXi servers, 1 x Unity and 1 x XtremIO:
 
 - **4 x vSphere ESXi servers** : 10.226.68.231-234       (hostnames: e2e-l4-0680-231/232/233/234)
+- **1 x Cisco MDS FC switch** : 10.228.225.202           (hostname: e2e-l4-sw7-202)
+- **1 x Brocade FC switch** : 10.228.225.203             (hostname: e2e-l4-sw8-203)
 - **1 x Dell EMC Unity storage array** : 10.226.49.236   (hostname : uni0839)
 - **1 x Dell EMC XtremIO storage array** : 10.226.49.222 (hostname : e2es-xio-02)
 
 Monitoring Goals
 ~~~~~~~~~~~~~~~~~
 
-- Consolidate all logs from both servers and storage arrays;
+- Consolidate all logs from servers, switches and storage arrays;
 - Consolidate logs of ELK stack itself.
 
 ELK Deployment
@@ -189,16 +191,87 @@ The installation process has already been documented by this document, please re
 
    ::
 
+     - pipeline.id: syslog.vsphere
+       path.config: "/etc/logstash/conf.d/syslog_vsphere.conf"
+     - pipeline.id: syslog.fabric
+       path.config: "/etc/logstash/conf.d/syslog_fabric.conf"
      - pipeline.id: syslog.unity
        path.config: "/etc/logstash/conf.d/syslog_unity.conf"
      - pipeline.id: syslog.xio
        path.config: "/etc/logstash/conf.d/syslog_xio.conf"
-     - pipeline.id: syslog.vsphere
-       path.config: "/etc/logstash/conf.d/syslog_vsphere.conf"
      - pipeline.id: beats
        path.config: "/etc/logstash/conf.d/beats.conf"
 
 4. Configure pipelines:
+
+   - syslog_vsphere.conf
+
+     ::
+
+       input {
+         tcp {
+           type => "syslog"
+           port => 5002
+           tags => ["syslog", "tcp", "vsphere"]
+         }
+         udp {
+           type => "syslog"
+           port => 5002
+           tags => ["syslog", "udp", "vsphere"]
+         }
+       }
+
+       filter {
+         grok {
+           match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{DATA:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
+           add_field => [ "received_from", "%{host}" ]
+         }
+         date {
+            match => [ "timestamp", "MMM dd HH:mm:ss", "MMM  d HH:mm:ss" ]
+         }
+       }
+
+       output {
+         elasticsearch {
+           hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+           index => "logstash-vsphere-%{+YYYY.MM.dd}"
+           ilm_rollover_alias => "logstash-vsphere"
+           ilm_policy => "cweek_policy1"
+         }
+       }
+
+
+   - syslog_fabric.conf
+
+     ::
+
+       input {
+         tcp {
+           type => "syslog"
+           port => 514
+           tags => ["syslog", "tcp", "fabric"]
+         }
+         udp {
+           type => "syslog"
+           port => 514
+           tags => ["syslog", "udp", "fabric"]
+         }
+       }
+
+       filter {
+         mutate {
+           add_field => [ "received_from", "%{host}" ]
+         }
+       }
+
+       output {
+         elasticsearch {
+           hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+           index => "logstash-fabric-%{+YYYY.MM.dd}"
+           ilm_rollover_alias => "logstash-fabric"
+           ilm_policy => "cweek_policy1"
+         }
+       }
 
    - syslog_unity.conf
 
@@ -230,6 +303,9 @@ The installation process has already been documented by this document, please re
        output {
          elasticsearch {
            hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+           index => "logstash-unity-%{+YYYY.MM.dd}"
+           ilm_rollover_alias => "logstash-unity"
+           ilm_policy => "cweek_policy1"
          }
        }
 
@@ -263,39 +339,9 @@ The installation process has already been documented by this document, please re
        output {
          elasticsearch {
            hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
-         }
-       }
-
-   - syslog_vsphere.conf
-
-     ::
-
-       input {
-         tcp {
-           type => "syslog"
-           port => 5002
-           tags => ["syslog", "tcp", "vsphere"]
-         }
-         udp {
-           type => "syslog"
-           port => 5002
-           tags => ["syslog", "udp", "vsphere"]
-         }
-       }
-
-       filter {
-         grok {
-           match => { "message" => "%{SYSLOGTIMESTAMP:syslog_timestamp} %{DATA:syslog_hostname} %{DATA:syslog_program}(?:\[%{POSINT:syslog_pid}\])?: %{GREEDYDATA:syslog_message}" }
-           add_field => [ "received_from", "%{host}" ]
-         }
-         date {
-            match => [ "timestamp", "MMM dd HH:mm:ss", "MMM  d HH:mm:ss" ]
-         }
-       }
-
-       output {
-         elasticsearch {
-           hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
+           index => "logstash-xio-%{+YYYY.MM.dd}"
+           ilm_rollover_alias => "logstash-xio"
+           ilm_policy => "cweek_policy1"
          }
        }
 
@@ -316,6 +362,8 @@ The installation process has already been documented by this document, please re
         elasticsearch {
           hosts => ["http://e2e-l4-0680-240:9200", "http://e2e-l4-0680-241:9200", "http://e2e-l4-0680-242:9200"]
           index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+          ilm_rollover_alias => "filebeat"
+          ilm_policy => "cweek_policy1"
         }
       }
 
@@ -340,6 +388,31 @@ vSphere Syslog Configuration
 4. Add the Logstash syslog listening address "udp://10.226.68.186:5002":
 
    .. image:: images/syslog_vsphere_config.png
+
+Switch Syslog Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All network equipment, including Ethernet switches, FC switches, routers, firewalls, etc., support syslog as a kind of de facto standard. Therefor, their logs can be consolidated easily with ELK stack. However, most of network equipment uses UDP port 514 for syslog and does not provide the option to change it, hence we should create a Logstash pipeline listening at the port, just as what did above.
+
+**Note**: the commands for enabling syslog on different switches may be far from each other. Please refer to their official documents for detailed commands.
+
+Below are configurations for our switches (10.228.225.202/203):
+
+- Cisco Switch
+
+  ::
+
+    conf t
+    logging server 10.226.68.186 6 facility syslog
+    end
+    copy running startup
+
+- Brocade Switch
+
+  ::
+
+    syslogdipadd 10.226.68.186
+    syslogdipshow
 
 Unity Storage Array Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
