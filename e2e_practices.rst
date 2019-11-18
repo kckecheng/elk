@@ -364,13 +364,6 @@ XtremIO Storage Array Configuration
 ELK Stack Filebeat Configuraion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Beats have been mentioned for several times in this document, but what are beats? They are actually lightweight data shippers, which can forward data to either Logstash or Elasticsearch directly with much less configuration than Logstash.
-
-The most frequently used beats are:
-
-- **filebeat** : sends local file records to Logstash or ELasticsearch (work as tail -f on Unix like OS);
-- **metricbeat** : sends system or application performance metrics to Logstash or Elasticsearch.
-
 Since we are leveraging ELK stack mainly for logging here in the document, we will use filebeat only. Currently, filebeat supports Linux, Windows and Mac, and provide well pacakged binary (deb, rpm, etc.). The installation is pretty easy, we won't cover the details, please refer to the `offical instalaltion guide <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-installation.html>`_.
 
 After installation, filebeat needs to be configured. The steps can be refered `here <https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration.html>`_.

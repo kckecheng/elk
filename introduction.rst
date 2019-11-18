@@ -65,4 +65,17 @@ Kibana is the front end GUI for Elasticsearch.
 
 .. image:: images/kibana_overview.png
 
+Beats
+~~~~~~
 
+Beside the main three components mentioned above, there exists a kind of lightweight data collectors which are called beats. They are installed directly (for most beats and their modules) on the data sources, and collect data for specilized purposes, which are then forwarded to Elasticsearch or Logstash.
+
+The most frequently used beats are:
+
+- **filebeat** : sends local file records to Logstash or ELasticsearch (work as "tail -f");
+- **winlogbeat** : sends windows event logs to Logstash or Elasticsearch;
+- **metricbeat** : sends system or application performance metrics to Logstash or Elasticsearch.
+
+Because of its nature, **filebeat** is extremely suitable for consolidating application logs, e.g., MongoDB, apache, etc.
+
+.. image:: images/beats_overview.png
