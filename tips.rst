@@ -37,13 +37,9 @@ Send into Kafka
        tcp {
          port => 5000
        }
-       udp {
-         port => 5000
-       }
      }
 
      output {
-       stdout { }
        kafka {
          codec => json
          topic_id => "topic1"
@@ -82,6 +78,8 @@ Read from Kafka and Send to Elasticsearch
        }
      }
 
+     filter { json => "message" }
+
      output {
        elasticsearch {
          hosts => ["http://elasticsearch1:9200", "http://elasticsearch2:9200", "http://elasticsearch3:9200"]
@@ -99,3 +97,40 @@ Read from Kafka and Send to Elasticsearch
      message2
 
 #. From Kibana, the informaiton should be able to be seen
+
+Add Tags to Different Kafka Topics
+------------------------------------
+
+::
+
+  input {
+    kafka {
+      client_id => "logstash_server"
+      group_id => "logstash"
+      topics => ["unity", "xio"]
+      codec => "json"
+      bootstrap_servers => "kafka_server1:9092,kafka_server2:9092,kafka_server3:9092"
+    }
+  }
+
+  filter {
+    if [kafka][topic] == "unity" {
+      json {
+        source => "message"
+        add_tag => ["syslog", "unity"]
+      }
+    }
+    if [kafka][topic] == "xio" {
+      json {
+        source => "message"
+        add_tag => ["syslog", "xio"]
+      }
+    }
+  }
+
+  output {
+    elasticsearch {
+      hosts => ["http://elasticsearch1:9200", "http://elasticsearch2:9200", "http://elasticsearch3:9200"]
+      index => "storagebox-%{+YYYY.MM.dd}"
+    }
+  }
