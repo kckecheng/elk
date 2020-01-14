@@ -77,6 +77,7 @@ Read from Kafka and Send to Elasticsearch
          client_id => "logstash_server"
          # group_id => "logstash_server"
          topics => ["topic1"]
+         codec => "json"
          bootstrap_servers => "kafka_server1:9092,kafka_server2:9092,kafka_server3:9092"
        }
      }
