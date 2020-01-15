@@ -36,13 +36,14 @@ Send into Kafka
      input {
        tcp {
          port => 5000
+         tags => ["syslog", "topic1"]
        }
      }
 
      output {
        kafka {
-         codec => json
          topic_id => "topic1"
+         codec => json
          bootstrap_servers => "kafka_server1:9092,kafka_server2:9092,kafka_server3:9092"
        }
      }
@@ -78,8 +79,6 @@ Read from Kafka and Send to Elasticsearch
        }
      }
 
-     filter { json => "message" }
-
      output {
        elasticsearch {
          hosts => ["http://elasticsearch1:9200", "http://elasticsearch2:9200", "http://elasticsearch3:9200"]
@@ -88,18 +87,12 @@ Read from Kafka and Send to Elasticsearch
 
      }
 
-#. Send a test information: the below information is sent to Kafaka topic1 at first because of the pipeline created in the above section
-
-   ::
-
-     telnet logstash_server 5000
-     message1
-     message2
-
 #. From Kibana, the informaiton should be able to be seen
 
 Add Tags to Different Kafka Topics
 ------------------------------------
+
+**Notes:** [@metadata][kafka][topic] will be empty sometimes due to unknown issues. Hence this tip is listed here for reference.
 
 ::
 
@@ -114,17 +107,11 @@ Add Tags to Different Kafka Topics
   }
 
   filter {
-    if [kafka][topic] == "unity" {
-      json {
-        source => "message"
-        add_tag => ["syslog", "unity"]
-      }
+    if [@metadata][kafka][topic] == "unity" {
+      mutate { add_tag => ["unity"] }
     }
-    if [kafka][topic] == "xio" {
-      json {
-        source => "message"
-        add_tag => ["syslog", "xio"]
-      }
+    if [@metadata][kafka][topic] == "xio" {
+      mutate { add_tag => ["xio"] }
     }
   }
 
