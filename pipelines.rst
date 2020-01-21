@@ -604,6 +604,32 @@ The same goal can be achived with both methods, but which method should be used?
 - Maintaining everything in a single pipeline leads to conditional hell - lots of conditions need to be declared which cause complication and potential errors;
 - When multiple output destinations are defined in the same pipeline, `congestion may be triggered <https://www.elastic.co/blog/logstash-multiple-pipelines>`_.
 
+Configuration Pitfall
+~~~~~~~~~~~~~~~~~~~~~~
+
+Based on previous introduction, it is known the file **pipelines.yml** is where pipelines are controlled(enable/disable). However, there exists a pitfall. Logstash supoorts defining and enabling multiple pipelines as below:
+
+::
+
+  - pipeline.id: syslog.unity
+    path.config: "/etc/logstash/conf.d/syslog_unity.conf"
+  - pipeline.id: syslog.xio
+    path.config: "/etc/logstash/conf.d/syslog_xio.conf"
+  ...
+
+However, with the default main pipeline as below, all configurations also seems to work:
+
+::
+
+  - pipeline.id: main
+    path.config: "/etc/logstash/conf.d/*.conf"
+
+
+This is the pitfall:
+
+- By using a single main pipeline to enable all pipeline configurations(\*.conf), acutally only one pipeline is working. All configurations are merged together. In other words, it is the same as you define a single pipeline configuration file containing all logics - all power of multiple pipelines are silenced;
+- Some input/output plugin may not work with such configuration, e.g. Kafka. When Kafka is used in the middle of event sources and logstash, Kafka input/output plugin needs to be seperated into different pipelines, otherwise, events will be merged into one Kafka topic or Elasticsearch index.
+
 Reference
 ~~~~~~~~~~
 

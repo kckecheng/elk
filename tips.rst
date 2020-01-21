@@ -42,6 +42,7 @@ Send into Kafka
 
      output {
        kafka {
+         id => "topic1" # It is recommended to use different id for different Logstash pipelines
          topic_id => "topic1"
          codec => json
          bootstrap_servers => "kafka_server1:9092,kafka_server2:9092,kafka_server3:9092"
@@ -71,8 +72,8 @@ Read from Kafka and Send to Elasticsearch
 
      input {
        kafka {
-         client_id => "logstash_server"
-         # group_id => "logstash_server"
+         client_id => "logstash_server" # It is recommended to use different client_id for different Logstash pipelines
+         group_id => "logstash_server"
          topics => ["topic1"]
          codec => "json"
          bootstrap_servers => "kafka_server1:9092,kafka_server2:9092,kafka_server3:9092"
@@ -119,5 +120,24 @@ Add Tags to Different Kafka Topics
     elasticsearch {
       hosts => ["http://elasticsearch1:9200", "http://elasticsearch2:9200", "http://elasticsearch3:9200"]
       index => "storagebox-%{+YYYY.MM.dd}"
+    }
+  }
+
+Rename the Host Field while Sending Filebeat Events to Logstash
+-----------------------------------------------------------------
+
+If filebeat is sending events to Elasticsearch directly, everything works fine. However, if filebeat is sending events to an index already used by Logstash where syslog(TCP/UDP input) is also sending events to, error on the host filed will be raised:
+
+- TCP/UDP input plugin of Logstash will add a field **host** to stand for where the information is generated. This field is a string;
+- Filebeat sends events with a filed **host** which is an object(dict);
+- Because of the difference, Elasticsearch cannot map the host field correctly and generate index accordingly.
+
+To fix this, the mutate filter plugin can be used to rename the host field of Filebeat to a new name as below:
+
+::
+
+  filter {
+    mutate {
+      rename => ["host", "server"]
     }
   }
