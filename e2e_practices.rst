@@ -1,7 +1,7 @@
 ELK Stack End to End Practice
 ==============================
 
-This chapter will demonstrate an end to end configuration demo for an imaginary production environment.
+This chapter will demonstrate an end to end ELK Stack configuration demo for an imaginary production environment.
 
 Production Enviroment
 -----------------------
@@ -510,4 +510,4 @@ Elasticsearch and Logstash have supported modules in filebeat, hence we will lev
 Conclusion
 ------------
 
-We have completed all the setup work for the production environment. The next step is leveraging the powerful ELK stack checking our logs, which will be covered in the next chapter.
+We have completed all the setup work for the production environment. The next step is leveraging the powerful ELK stack checking our logs, which will be covered in a separate chapter.

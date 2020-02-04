@@ -17,12 +17,12 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'ELK Stack'
+project = 'Log Consolidation with ELK Stack'
 copyright = '2019, KC'
 author = 'KC'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1'
+release = '1.2'
 
 
 # -- General configuration ---------------------------------------------------

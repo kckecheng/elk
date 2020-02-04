@@ -15,6 +15,7 @@ In the meanwhle, for anything unclear or needing enhancement, please help submit
    installation
    pipelines
    e2e_practices
+   e2e_kafkapractices
    kibana_search
    grok_debugger
    tips
