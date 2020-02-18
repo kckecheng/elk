@@ -217,8 +217,37 @@ Kafka Manager Deployment
 
 A Kafka cluster can be managed with CLI commands. However, it is not quit handy. Kafka Manager is a web based tool which makes the basic Kafka management tasks straightforward. The tool currently is maintained by Yahoo and has been renamed as CMAK (Cluster Management for Apache Kafka). Anyway, we prefer calling it Kafka Manager.
 
+The Kafka manager will be deployed on kafka69155.
+
 1. Download the application from `its github repo <https://github.com/yahoo/CMAK>`_;
-2. TBD
+#. After decompressing the package, change the zookeeper option as below in **conf/application.conf**:
+
+   ::
+
+     kafka-manager.zkhosts="e2e-l4-0690-155:2181,e2e-l4-0690-156:2181,e2e-l4-0690-157:2181"
+
+#. Create the app deployment(a zip file will be created):
+
+   ::
+
+     ./sbt clean dist
+
+#. Unzip the newly created zip file (kafka-manager-2.0.0.2.zip in this demo) and start the service:
+
+   ::
+
+     unzip kafka-manager-2.0.0.2.zip
+     cd kafka-manager-2.0.0.2
+     bin/kafka-manager
+
+#. The Kafka manager can be accessed from http://10.226.69.155:9000/ after a while;
+#. Click **Cluster->Add Cluster** and enter below information to manage our Kafka cluster:
+
+   - Cluster Name: assign a meaningful name for this cluster
+   - Cluster Zookeeper Hosts: 10.226.69.155:2181,10.226.69.156:2181,10.226.69.157:2181
+   - Enable JMX Polling: yes
+
+#. Done.
 
 Logstash Deployment
 ~~~~~~~~~~~~~~~~~~~~
@@ -471,7 +500,7 @@ Now, we have our Logstash instances configured as Kafka producers. Before moving
 - Never define complicated filters for pipelines of such Logstash instances since they may increase latency;
 - Add tags to the input section to ease the effort of log search/classification with Kibana;
 - Specify different **id** with meaningful names for different pipelines;
-- Rename the **host** field to some other meaningful name if syslog is also a data source in the setup. Refer to the **tips** chapter on the explanation about this.
+- Rename the **host** field to some other meaningful name if syslog is also a data source in the setup. Refer to the **tips** chapter for the explanation about this.
 
 Logstash Which Consume Logs from Kafka
 ++++++++++++++++++++++++++++++++++++++++
@@ -562,7 +591,7 @@ After configuring and starting Logstash, logs should be able to be sent to Elast
 
 Now, we have our Logstash instances configured as Kafka consumers. Before moving forward, it is worthwhile to introduce some tips on pipeline configurations when Kafka is used as the input plugin.
 
-- **client_id** should always be set with *different values* for each pipeline on differnt Logstash instances. This field is used to identify consumers on Kafka;
+- **client_id** should always be set with *different values* for each pipeline on different Logstash instances. This field is used to identify consumers on Kafka;
 - **group_id** should be set with the *idenfical value* for the same pipeline on different Logstsh instances. This field is used to identify consumer groups on Kafka, and load balance won't work if the value are different.
 
 Data Source Configuration
