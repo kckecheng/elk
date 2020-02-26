@@ -180,7 +180,7 @@ Most of time, the 2 x timestamp are close to each other. Of course, there will b
         "@timestamp" => 2020-02-21T07:16:20.000Z
     }
 
-- mutate: this filter will drop the logtime field and event field (created by grok). After processing, the new struct will be as below: 
+- mutate: this filter will drop the logtime field and event field (created by grok). After processing, the new struct will be as below:
 
   ::
 
@@ -202,3 +202,42 @@ References:
 - `grok predefined patterns <https://github.com/logstash-plugins/logstash-patterns-core/blob/master/patterns/grok-patterns>`_
 - `date filter <https://www.elastic.co/guide/en/logstash/current/plugins-filters-date.html>`_
 - `timezone list <http://joda-time.sourceforge.net/timezones.html>`_
+
+Consolidate journal logs
+---------------------------
+
+After adopting systemd on Linux, logs for services can be checked easily with the consolidated **journalctl** tool. The classic logs (/var/log/messages, etc.) are used mainly for system related inforamtion logging (journald will also do the same actually).
+
+Due to the powerful functions of journald (and journalctl), more and more modern Linux distributions even won't install the syslog related packages - one can only check logs with journalctl. Under such a condition, consolidating journals to Elastic stack becomes a common task.
+
+- Define a systemd service as below (/etc/systemd/system/remote-syslog.service):
+
+  ::
+
+    [Unit]
+    Description=Remote-syslog
+    After=systemd-journald.service
+    Requires=systemd-journald.service
+
+    [Service]
+    ExecStartPre=/usr/sbin/iptables -A INPUT -p tcp --dport <syslog server port> -j ACCEPT
+    ExecStart=/bin/sh -c "journalctl -f | ncat <syslog server address> <syslog server port>"
+    TimeoutStartSec=0
+    Restart=on-failure
+    RestartSec=5s
+
+    [Install]
+    WantedBy=multi-user.target
+
+- Start the service
+
+  ::
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable remote-syslog.service
+    sudo systemctl start remote-syslog.service
+
+- Notes
+
+  - ncat is a tool provided by nmap which works as the linux cat command for network sockets
+  - syslog server needs to open a TCP port for the connection (define a corresponding Logstash pipeline)
