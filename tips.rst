@@ -241,3 +241,18 @@ Due to the powerful functions of journald (and journalctl), more and more modern
 
   - ncat is a tool provided by nmap which works as the linux cat command for network sockets
   - syslog server needs to open a TCP port for the connection (define a corresponding Logstash pipeline)
+
+KQL
+----
+
+Query a field which contains a specified string
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Notes**:
+
+- Use `regular expression <https://www.elastic.co/guide/en/elasticsearch/reference/current/regexp-syntax.html>`_ to match the preceding/succeeding part of the string;
+- Do not use quote around the string.
+
+::
+
+  message: *reboot*
