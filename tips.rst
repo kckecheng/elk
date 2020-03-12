@@ -240,7 +240,7 @@ Due to the powerful functions of journald (and journalctl), more and more modern
 - Notes
 
   - ncat is a tool provided by nmap which works as the linux cat command for network sockets
-  - syslog server needs to open a TCP port for the connection (define a corresponding Logstash pipeline)
+  - syslog server needs to open a TCP port for the connection (define a corresponding Logstash pipeline)(if UDP is preferred, "use ncat -u")
 
 KQL
 ----
