@@ -389,6 +389,11 @@ vSphere Syslog Configuration
 
    .. image:: images/syslog_vsphere_config.png
 
+**Notes**:
+
+- if the non-default port (514 is the default) is used, the corresponding ESXi firewall rule needs to be updated;
+- For practice, ESXi firewall is disabled directly with command "esxcli network firewall set --enabled false" on our setup.
+
 Switch Syslog Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
