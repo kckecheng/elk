@@ -242,6 +242,13 @@ Due to the powerful functions of journald (and journalctl), more and more modern
   - ncat is a tool provided by nmap which works as the linux cat command for network sockets
   - syslog server needs to open a TCP port for the connection (define a corresponding Logstash pipeline)(if UDP is preferred, "use ncat -u")
 
+Alerting Management with Elastalert
+------------------------------------
+
+Elastic stack ships with powerful built-in alerting management capability through X-Pack which is not free of charge. Thanks to the OSS contributors, there exists a powerful open source alternative named `Elastalert <https://github.com/Yelp/elastalert>`_.
+
+Elastalert is a rule based alerting implementation, and supports a large num. of alerting channels such as MS teams, Jira, etc. Please refer to its `official documentation <http://elastalert.readthedocs.org/>`_ for details.
+
 KQL
 ----
 
