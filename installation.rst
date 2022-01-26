@@ -3,7 +3,7 @@ ELK Installation
 
 As we know, ELK is mainly consit of Elasticsearch, Logstash and Kibana, hence the instalaltion consists of 3 corresponding sections. ELK stack can be installed on bare-metal/VM, and can also be run by using docker and kunernetes, it even can be serviced through public clouds like AWS and GCP.
 
-For non-public cloud based IT solutions, it is recommended to maintain a **local deployment**. At the same time, installing Elasticsearch on **bare-metal/VM** are recommdned since Elasticsearch needs to store and index data frequently although docker/kubernetes also support data persistence (unless there is already a working kubernetes setup including well defined CSI support, it is not cost effective to maintain a kubernetes cluster just because of ELK setup).
+For non-public cloud based IT solutions, it is recommended to maintain a **local deployment**. At the same time, installing Elasticsearch on **bare-metal/VM** is recommended since Elasticsearch needs to store and index data frequently although docker/kubernetes also support data persistence (unless there is already a working kubernetes setup including well defined CSI support, it is not cost effective to maintain a kubernetes cluster just because of ELK setup).
 
 Elasticsearch
 ---------------
